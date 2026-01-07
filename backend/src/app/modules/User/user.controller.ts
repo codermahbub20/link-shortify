@@ -69,7 +69,7 @@ const updateUser: RequestHandler = catchAsync(async (req: Request, res: Response
     const result: any = await new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
         { folder: "profiles" },
-        (error, result) => {
+        (error: any, result: unknown) => {
           if (result) resolve(result);
           else reject(error);
         }

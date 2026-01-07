@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Eye, EyeOff, Users } from 'lucide-react';
 import { useRegisterMutation } from '../../../../redux/features/auth/authApi';
+import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 
 
@@ -45,6 +47,9 @@ export const RegistrationForm: React.FC = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
 
+  const navigate = useNavigate();
+
+
   const {
     register,
     handleSubmit,
@@ -69,9 +74,11 @@ export const RegistrationForm: React.FC = () => {
     try {
       const result = await registerUser(data).unwrap();
       console.log('Registration successful:', result);
-      alert('Account created successfully!');
+      toast.success('Account created successfully!');
+      navigate('/');
     } catch (err) {
-      console.error('Registration failed:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Registration failed';
+      toast.error(errorMessage);
     }
   };
 
@@ -286,9 +293,9 @@ export const RegistrationForm: React.FC = () => {
           <div className="text-center mt-6">
             <p className="text-sm text-gray-600">
               Already have an account?{' '}
-              <a href="#" className="text-blue-600 font-semibold hover:underline">
+              <Link to="/login" className="text-blue-600 font-semibold hover:underline">
                 Login here
-              </a>
+              </Link>
             </p>
           </div>
 

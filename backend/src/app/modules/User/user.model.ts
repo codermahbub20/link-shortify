@@ -17,11 +17,7 @@ const userSchema = new Schema<TUser, UserModel>(
       lowercase: true,
       trim: true,
     },
-    contactNumber: {
-      type: String,
-      required: [true, 'Contact number is required'],
-      match: [/^\+?[0-9]{8,15}$/, 'Invalid contact number format'],
-    },
+
     password: {
       type: String,
       required: [true, 'Password is required'],

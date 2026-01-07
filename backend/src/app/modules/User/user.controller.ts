@@ -3,7 +3,6 @@ import { Request, RequestHandler, Response } from "express";
 import { UserServices } from "./user.service";
 import sendResponse from "../../utils/sendResponse";
 import { HttpStatus } from "http-status-ts";
-import cloudinary from "../../lib/cloudinary";
 import catchAsync from "../../utils/catchAsync";
 
 // Create user
@@ -62,23 +61,6 @@ const updateUser: RequestHandler = catchAsync(async (req: Request, res: Response
 
   const updateData = req.body ;
 
-  // 🔹 Handle profile picture upload if file exists
-  if (req.file) {
-    const buffer = req.file.buffer;
-
-    const result: any = await new Promise((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
-        { folder: "profiles" },
-        (error: any, result: unknown) => {
-          if (result) resolve(result);
-          else reject(error);
-        }
-      );
-      stream.end(buffer);
-    });
-
-    updateData.profilePic = result.secure_url; // save cloudinary image URL
-  }
 
   const updatedUser = await UserServices.updateUserInDB(userId, updateData);
 

@@ -14,6 +14,7 @@ app.use(
 
 app.use(express.json());
 app.use('/api', router);
+
 app.get('/', (req: Request, res: Response) => {
   res.send('Url Shortner Task For Technext!');
 });

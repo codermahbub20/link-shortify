@@ -10,7 +10,6 @@ export type TRegisterUser = {
   fullName: string;
   companyName: string;
   email: string;
-  contactNumber: string;
   password: string;
   confirmPassword: string;
   rememberMe?: boolean;

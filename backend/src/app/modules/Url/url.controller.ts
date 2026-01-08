@@ -22,7 +22,8 @@ const createShortUrl = catchAsync(async (req: Request, res: Response) => {
 
 
 const getMyUrls = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user._id;
+  const userId = req.user.id;
+  console.log('User ID in getMyUrls controller:', userId);
   const result = await UrlServices.getMyUrlsFromDB(userId);
 
   sendResponse(res, {

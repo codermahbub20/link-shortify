@@ -23,7 +23,7 @@ const createShortUrl = catchAsync(async (req: Request, res: Response) => {
 
 const getMyUrls = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.id;
-  console.log('User ID in getMyUrls controller:', userId);
+
   const result = await UrlServices.getMyUrlsFromDB(userId);
 
   sendResponse(res, {
@@ -70,7 +70,7 @@ const redirectShortUrl = catchAsync(async (req: Request, res: Response) => {
 
 const deleteUrl = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const userId = req.user._id;
+  const userId = req.user.id;
 
   await UrlServices.deleteUrlFromDB(id, userId);
 

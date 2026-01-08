@@ -1,9 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// src/Components/Pages/Dashboard/DashboardHome.tsx
+
 import React, { useState } from 'react';
-import { Link2, BarChart3, TrendingUp, Copy, Check } from 'lucide-react';
+import { Link2, BarChart3, TrendingUp, Copy, Check, Trash2, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { useAppSelector } from '../../redux/hooks';
-import { useGetMyUrlsQuery } from '../../redux/features/url/urlApi';
+import { useDeleteUrlMutation, useGetMyUrlsQuery } from '../../redux/features/url/urlApi';
+
 
 const DashboardHome: React.FC = () => {
   const { user } = useAppSelector((state) => state.auth);
@@ -13,11 +18,14 @@ const DashboardHome: React.FC = () => {
     data: urlsData,
     isLoading,
     isError,
-  } = useGetMyUrlsQuery(undefined);
+    refetch, // Add refetch to manually refresh data
+  } = useGetMyUrlsQuery({});
+
+  const [deleteUrl, { isLoading: isDeleting }] = useDeleteUrlMutation();
 
   const urls = urlsData?.data || [];
 
-  const totalClicks = urls.reduce((sum, url) => sum + (url.clickCount || 0), 0);
+  const totalClicks = urls.reduce((sum: any, url: { clickCount: any; }) => sum + (url.clickCount || 0), 0);
   const activeLinks = urls.length;
   const avgClickRate = activeLinks > 0 ? ((totalClicks / activeLinks) * 100).toFixed(1) : '0.0';
 
@@ -26,9 +34,11 @@ const DashboardHome: React.FC = () => {
     .slice(0, 10);
 
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [linkToDelete, setLinkToDelete] = useState<{ id: string; shortCode: string } | null>(null);
 
   const handleCopy = async (shortCode: string, id: string) => {
-    const shortUrl = `http://localhost:5000/${shortCode}`; // Change domain if needed
+    const shortUrl = `http://localhost:5000/${shortCode}`;
     try {
       await navigator.clipboard.writeText(shortUrl);
       setCopiedId(id);
@@ -36,6 +46,32 @@ const DashboardHome: React.FC = () => {
       setTimeout(() => setCopiedId(null), 2000);
     } catch {
       toast.error('Copy failed');
+    }
+  };
+
+  const openDeleteModal = (id: string, shortCode: string) => {
+    setLinkToDelete({ id, shortCode });
+    setDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!linkToDelete) return;
+
+    try {
+      // Delete the URL
+      await deleteUrl(linkToDelete.id).unwrap();
+
+      // Refetch the data to update the UI
+      await refetch();
+
+      toast.success(`Link short.ly/${linkToDelete.shortCode} deleted successfully!`);
+
+      // Close modal
+      setDeleteModalOpen(false);
+      setLinkToDelete(null);
+    } catch (error: any) {
+      console.error('Delete error:', error);
+      toast.error(error?.data?.message || 'Failed to delete link. Please try again.');
     }
   };
 
@@ -75,7 +111,7 @@ const DashboardHome: React.FC = () => {
         </div>
       </div>
 
-      {/* Stats Cards - Compact */}
+      {/* Stats Cards */}
       <div className="px-6 py-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
@@ -113,7 +149,7 @@ const DashboardHome: React.FC = () => {
         </div>
       </div>
 
-      {/* Recent Activity Table - No Scroll, Compact */}
+      {/* Recent Activity Table */}
       <div className="px-6 pb-10">
         <div className="bg-white rounded-xl shadow-sm border border-gray-100">
           <div className="px-5 py-4 border-b border-gray-200 flex justify-between items-center">
@@ -132,7 +168,7 @@ const DashboardHome: React.FC = () => {
               <p className="text-gray-400 text-sm mt-1">Create your first one!</p>
             </div>
           ) : (
-            <div className="overflow-x-hidden"> {/* Prevents any horizontal scroll */}
+            <div className="overflow-x-hidden">
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
@@ -177,7 +213,14 @@ const DashboardHome: React.FC = () => {
                         </span>
                       </td>
                       <td className="px-5 py-4">
-                        <button className="text-xs text-indigo-600 hover:underline">Edit</button>
+                        <button
+                          onClick={() => openDeleteModal(link._id, link.shortCode)}
+                          disabled={isDeleting}
+                          className="text-red-600 hover:text-red-800 p-1.5 rounded hover:bg-red-50 transition disabled:opacity-50"
+                          title="Delete link"
+                        >
+                          {isDeleting ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -193,6 +236,49 @@ const DashboardHome: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteModalOpen && linkToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full">
+            <h3 className="text-xl font-bold text-gray-900 mb-3">Delete Short Link?</h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete{' '}
+              <span className="font-semibold text-indigo-600">
+                short.ly/{linkToDelete.shortCode}
+              </span>
+              ?<br />
+              <span className="text-sm text-red-600">This action cannot be undone.</span>
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setDeleteModalOpen(false);
+                  setLinkToDelete(null);
+                }}
+                disabled={isDeleting}
+                className="px-5 py-2.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                disabled={isDeleting}
+                className="px-5 py-2.5 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition disabled:opacity-70 flex items-center gap-2"
+              >
+                {isDeleting ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  'Delete Permanently'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

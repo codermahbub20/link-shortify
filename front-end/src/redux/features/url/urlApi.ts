@@ -23,6 +23,7 @@ const urlApi = baseApi.injectEndpoints({
       query: (id: string) => ({
         url: `/urls/${id}`,
         method: "DELETE",
+        invalidatesTags: ['Urls'],
       }),
     
     }),

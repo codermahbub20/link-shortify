@@ -4,22 +4,20 @@ import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import { useLoginMutation } from '../../../../redux/features/auth/authApi';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { useAppDispatch } from '../../../../redux/hooks';
+import { setUser } from '../../../../redux/features/auth/authSlice';
+import { verifyToken } from '../../../../utils/verifyToken';
 
-
-
-// Types
 interface LoginFormData {
   email: string;
   password: string;
   rememberMe?: boolean;
 }
 
-
 export const LoginForm: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
-
   const navigate = useNavigate();
-
+  const dispatch = useAppDispatch();
 
   const {
     register,
@@ -27,31 +25,30 @@ export const LoginForm: React.FC = () => {
     formState: { errors },
   } = useForm<LoginFormData>();
 
-  const [loginUser, { isLoading, isSuccess, isError }] =
-    useLoginMutation();
+  const [login, { isLoading }] = useLoginMutation();
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      const result = await loginUser(data).unwrap();
-      console.log('Login successful:', result);
-      
-      // Store token if remember me is checked
-      if (data.rememberMe && result.token) {
-        // In a real app, you'd store this securely
-        console.log('Token would be stored:', result.token);
+      const res = await login({
+        email: data.email,
+        password: data.password,
+      }).unwrap();
+
+      const user = verifyToken(res?.data?.token);
+
+      dispatch(setUser({ user, token: res?.data?.token }));
+
+      // Optional: persist token if "Remember me" is checked
+      if (data.rememberMe && res?.data?.token) {
+        localStorage.setItem('authToken', res.data.token); // or use secure method
       }
-      
+
       toast.success('Login successful!');
       navigate('/');
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Login failed';
-      toast.error(errorMessage);
+      console.error('Login error:', err);
+      toast.error('Invalid email or password');
     }
-  };
-
-  const handleFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    handleSubmit(onSubmit)(e);
   };
 
   return (
@@ -67,135 +64,120 @@ export const LoginForm: React.FC = () => {
               Welcome back
             </h1>
             <p className="text-gray-500 text-sm">
-              Sign in to your account to continue
+              Sign in to your Mini-CRM account
             </p>
           </div>
 
           {/* Form */}
-          <div onSubmit={handleFormSubmit}>
-            <div className="space-y-5">
-              {/* Email Address */}
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Email Address
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail className="text-gray-400" size={20} />
-                  </div>
-                  <input
-                    id="email"
-                    type="email"
-                    placeholder="john@company.com"
-                    className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${
-                      errors.email ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                    {...register('email', {
-                      required: 'Email is required',
-                      pattern: {
-                        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                        message: 'Invalid email address',
-                      },
-                    })}
-                  />
-                </div>
-                {errors.email && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.email.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Password */}
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label
-                    htmlFor="password"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Password
-                  </label>
-                  <a
-                    href="#"
-                    className="text-sm text-blue-600 hover:underline font-medium"
-                  >
-                    Forgot password?
-                  </a>
-                </div>
-                <div className="relative">
-                  <input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="Enter your password"
-                    className={`w-full px-4 py-2.5 pr-12 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${
-                      errors.password ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                    {...register('password', {
-                      required: 'Password is required',
-                      minLength: {
-                        value: 6,
-                        message: 'Password must be at least 6 characters',
-                      },
-                    })}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  >
-                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                  </button>
-                </div>
-                {errors.password && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.password.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Remember Me */}
-              <div className="flex items-center">
-                <input
-                  id="rememberMe"
-                  type="checkbox"
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                  {...register('rememberMe')}
-                />
-                <label
-                  htmlFor="rememberMe"
-                  className="ml-2 text-sm text-gray-700"
-                >
-                  Remember me for 30 days
-                </label>
-              </div>
-
-              {/* Submit Button */}
-              <button
-                type="button"
-                onClick={handleFormSubmit}
-                disabled={isLoading}
-                className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/30"
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            {/* Email Address */}
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-1"
               >
-                {isLoading ? 'Signing in...' : 'Sign in'}
-              </button>
-
-              {/* Success/Error Messages */}
-              {isSuccess && (
-                <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm text-center">
-                  Login successful! Redirecting...
+                Email Address
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Mail className="text-gray-400" size={20} />
                 </div>
-              )}
-              {isError && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm text-center">
-                  Invalid email or password. Please try again.
-                </div>
+                <input
+                  id="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${
+                    errors.email ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  {...register('email', {
+                    required: 'Email is required',
+                    pattern: {
+                      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                      message: 'Invalid email address',
+                    },
+                  })}
+                />
+              </div>
+              {errors.email && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.email.message}
+                </p>
               )}
             </div>
-          </div>
-     
+
+            {/* Password */}
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Password
+                </label>
+                <a
+                  href="#"
+                  className="text-sm text-blue-600 hover:underline font-medium"
+                >
+                  Forgot password?
+                </a>
+              </div>
+              <div className="relative">
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Enter your password"
+                  className={`w-full px-4 py-2.5 pr-12 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${
+                    errors.password ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  {...register('password', {
+                    required: 'Password is required',
+                    minLength: {
+                      value: 6,
+                      message: 'Password must be at least 6 characters',
+                    },
+                  })}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+              {errors.password && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.password.message}
+                </p>
+              )}
+            </div>
+
+            {/* Remember Me */}
+            <div className="flex items-center">
+              <input
+                id="rememberMe"
+                type="checkbox"
+                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                {...register('rememberMe')}
+              />
+              <label
+                htmlFor="rememberMe"
+                className="ml-2 text-sm text-gray-700"
+              >
+                Remember me for 30 days
+              </label>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/30"
+            >
+              {isLoading ? 'Signing in...' : 'Sign in'}
+            </button>
+          </form>
+
           {/* Sign Up Link */}
           <div className="text-center mt-6">
             <p className="text-sm text-gray-600">
@@ -233,3 +215,4 @@ export const LoginForm: React.FC = () => {
   );
 };
 
+export default LoginForm;

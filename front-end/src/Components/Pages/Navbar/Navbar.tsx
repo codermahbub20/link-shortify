@@ -10,11 +10,16 @@ interface NavbarProps {
   className?: string;
 }
 
+interface User {
+  name?: string;
+  email?: string;
+}
+
 export const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   // Get auth state from Redux
-  const { user, token } = useAppSelector((state) => state.auth);
+  const { user, token } = useAppSelector((state) => state.auth) as { user: User | null; token: string | null };
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 

@@ -8,6 +8,7 @@ import { RegistrationForm } from "../Components/Pages/Authentication/Registratio
 import LoginForm from "../Components/Pages/Authentication/Login/LoginForm";
 import DashboardLayout from "../Components/Layouts/DashboardLayout";
 import DashboardHome from "../Components/DashBoard/DashboardHome";
+import MyLinks from "../Components/DashBoard/MyLinks/MyLinks";
 
 
 export const router = createBrowserRouter([
@@ -36,10 +37,10 @@ export const router = createBrowserRouter([
             index: true, 
             element: <DashboardHome />,
           },
-          // {
-          //   path: "my-links",
-          //   element: <MyLinks />,
-          // },
+          {
+            path: "my-links",
+            element: <MyLinks />,
+          },
           // {
           //   path: "analytics",
           //   element: <Analytics />,

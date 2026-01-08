@@ -1,16 +1,21 @@
 // src/components/dashboard/Sidebar.tsx
 import React from 'react';
-import { LayoutDashboard, Link2, BarChart3, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, Link2,  LogOut } from 'lucide-react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { logOut } from '../../../redux/features/auth/authSlice';
 
+interface User {
+  name?: string;
+  email?: string;
+}
+
 const Sidebar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation(); // ← Added to highlight active link
   const dispatch = useAppDispatch();
-  const { user } = useAppSelector((state) => state.auth);
+  const { user } = useAppSelector((state) => state.auth) as { user?: User };
 
   const handleLogout = () => {
     dispatch(logOut());
@@ -21,8 +26,8 @@ const Sidebar: React.FC = () => {
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
     { icon: Link2, label: 'My Links', path: '/dashboard/my-links' },
-    { icon: BarChart3, label: 'Analytics', path: '/dashboard/analytics' },
-    { icon: Settings, label: 'Settings', path: '/dashboard/settings' },
+    // { icon: BarChart3, label: 'Analytics', path: '/dashboard/analytics' },
+    // { icon: Settings, label: 'Settings', path: '/dashboard/settings' },
   ];
 
   // Determine if a menu item is active

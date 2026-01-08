@@ -12,7 +12,7 @@ import { useDeleteUrlMutation, useGetMyUrlsQuery } from '../../redux/features/ur
 
 const DashboardHome: React.FC = () => {
   const { user } = useAppSelector((state) => state.auth);
-  const userName = user?.name || user?.email?.split('@')[0] || 'User';
+  const userName = (user as any)?.name || (user as any)?.email?.split('@')[0] || 'User';
 
   const {
     data: urlsData,

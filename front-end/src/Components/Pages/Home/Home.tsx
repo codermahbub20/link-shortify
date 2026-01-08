@@ -1,3 +1,4 @@
+import FeaturesAndCTASection from "../FeaturesSection/FeaturesSection";
 import Navbar from "../Navbar/Navbar";
 import UrlShortenerSection from "../UrlShortenerSection/UrlShortenerSection";
 
@@ -7,6 +8,7 @@ const Home = () => {
         <div>
             <Navbar/>
             <UrlShortenerSection/>
+            <FeaturesAndCTASection/>
            
         </div>
     );

@@ -39,18 +39,30 @@ const redirectShortUrl = catchAsync(async (req: Request, res: Response) => {
 
   const url = await Url.findOneAndUpdate(
     { shortCode },
-    { $inc: { clicks: 1 } },
-    { new: true },
+    { $inc: { clickCount: 1 } }, 
+    { new: true }
   );
 
   if (!url) {
-    res.status(404).json({
-      success: false,
-      message: 'Short URL not found',
-    });
-  } else {
-    res.redirect(url.originalUrl);
+ 
+    res.status(404).send(`
+      <div style="font-family: system-ui; text-align: center; padding: 4rem; background: #f9f9f9; min-height: 100vh;">
+        <h1 style="font-size: 3rem; color: #4c1d95;">Oops!</h1>
+        <p style="font-size: 1.2rem; color: #666;">This short link doesn't exist or has expired.</p>
+        <a href="/" style="color: #7c3aed; text-decoration: underline;">Go back home</a>
+      </div>
+    `);
+    return;
   }
+
+
+  let destination = url.originalUrl;
+
+  if (!/^https?:\/\//i.test(destination)) {
+    destination = 'http://' + destination;
+  }
+
+  res.redirect(301, destination);
 });
 
 

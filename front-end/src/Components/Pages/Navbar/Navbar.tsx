@@ -21,7 +21,7 @@ export const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
   const isAuthenticated = !!token && !!user;
 
   const handleLogout = () => {
-    dispatch(logOut()); // This should clear user & token from Redux
+    dispatch(logOut());
     toast.success('Logged out successfully');
     navigate('/');
   };
@@ -32,19 +32,19 @@ export const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
         <div className="flex justify-between h-16">
           {/* Logo and Brand */}
           <div className="flex items-center">
-            <a href="/" className="flex items-center space-x-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">A</span>
+            <a href="/" className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center shadow-md">
+                <span className="text-white font-bold text-xl">S</span>
               </div>
-              <span className="text-xl font-bold text-gray-900">Mini-CRM</span>
+              <span className="text-2xl font-bold text-gray-900">Shortly</span>
             </a>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-6">
             <a
               href="/"
-              className="flex items-center space-x-1 px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 transition"
+              className="flex items-center space-x-1 px-4 py-2 rounded-md text-gray-700 hover:bg-gray-100 transition"
             >
               <Home size={18} />
               <span>Home</span>
@@ -54,26 +54,28 @@ export const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
               <>
                 <a
                   href="/dashboard"
-                  className="flex items-center space-x-1 px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 transition"
+                  className="flex items-center space-x-1 px-4 py-2 rounded-md text-gray-700 hover:bg-gray-100 transition"
                 >
                   <LayoutDashboard size={18} />
                   <span>Dashboard</span>
                 </a>
 
                 {/* User Menu */}
-                <div className="flex items-center space-x-3 ml-4 pl-4 border-l border-gray-200">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                      <User size={16} className="text-white" />
+                <div className="flex items-center space-x-4 ml-6 pl-6 border-l border-gray-200">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-9 h-9 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full flex items-center justify-center shadow-sm">
+                      <User size={18} className="text-white" />
                     </div>
-                    <span className="text-sm font-medium text-gray-700">
-                      {user?.name || user?.email || 'User'}
-                    </span>
+                    <div>
+                      <p className="text-sm font-medium text-gray-700">
+                        {user?.name || user?.email?.split('@')[0] || 'User'}
+                      </p>
+                    </div>
                   </div>
 
                   <button
                     onClick={handleLogout}
-                    className="flex items-center space-x-1 px-3 py-2 rounded-md text-red-600 hover:bg-red-50 transition"
+                    className="flex items-center space-x-1 px-4 py-2 rounded-md text-red-600 hover:bg-red-50 transition"
                   >
                     <LogOut size={18} />
                     <span>Logout</span>
@@ -84,14 +86,14 @@ export const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
               <>
                 <a
                   href="/login"
-                  className="flex items-center space-x-1 px-4 py-2 rounded-md text-gray-700 hover:bg-gray-100 transition"
+                  className="flex items-center space-x-1 px-5 py-2 rounded-md text-gray-700 hover:bg-gray-100 transition"
                 >
                   <LogIn size={18} />
                   <span>Login</span>
                 </a>
                 <a
                   href="/signup"
-                  className="flex items-center space-x-1 px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition shadow-md"
+                  className="flex items-center space-x-1 px-6 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 transition shadow-md"
                 >
                   <UserPlus size={18} />
                   <span>Sign Up</span>
@@ -105,8 +107,9 @@ export const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="text-gray-700 hover:text-gray-900 focus:outline-none"
+              aria-label="Toggle menu"
             >
-              {isOpen ? <X size={24} /> : <Menu size={24} />}
+              {isOpen ? <X size={28} /> : <Menu size={28} />}
             </button>
           </div>
         </div>
@@ -114,34 +117,34 @@ export const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
 
       {/* Mobile Navigation */}
       {isOpen && (
-        <div className="md:hidden border-t border-gray-200">
-          <div className="px-2 pt-2 pb-3 space-y-1">
+        <div className="md:hidden border-t border-gray-200 bg-white">
+          <div className="px-4 pt-4 pb-6 space-y-3">
             <a
               href="/"
-              className="flex items-center space-x-2 px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 transition block"
+              className="flex items-center space-x-3 px-4 py-3 rounded-md text-gray-700 hover:bg-gray-100 transition block"
             >
-              <Home size={18} />
-              <span>Home</span>
+              <Home size={20} />
+              <span className="font-medium">Home</span>
             </a>
 
             {isAuthenticated ? (
               <>
                 <a
                   href="/dashboard"
-                  className="flex items-center space-x-2 px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 transition block"
+                  className="flex items-center space-x-3 px-4 py-3 rounded-md text-gray-700 hover:bg-gray-100 transition block"
                 >
-                  <LayoutDashboard size={18} />
-                  <span>Dashboard</span>
+                  <LayoutDashboard size={20} />
+                  <span className="font-medium">Dashboard</span>
                 </a>
 
-                <div className="px-3 py-2 border-t border-gray-200 mt-2">
-                  <div className="flex items-center space-x-2 mb-3">
-                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                      <User size={16} className="text-white" />
+                <div className="border-t border-gray-200 pt-4 mt-4">
+                  <div className="flex items-center space-x-3 mb-4 px-4">
+                    <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full flex items-center justify-center">
+                      <User size={20} className="text-white" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-900">
-                        {user?.name || user?.email || 'User'}
+                      <p className="text-sm font-semibold text-gray-900">
+                        {user?.name || user?.email?.split('@')[0] || 'User'}
                       </p>
                       {user?.email && (
                         <p className="text-xs text-gray-500">{user.email}</p>
@@ -151,10 +154,10 @@ export const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
 
                   <button
                     onClick={handleLogout}
-                    className="flex items-center space-x-2 w-full px-3 py-2 rounded-md text-red-600 hover:bg-red-50 transition text-left"
+                    className="w-full flex items-center space-x-3 px-4 py-3 rounded-md text-red-600 hover:bg-red-50 transition text-left"
                   >
-                    <LogOut size={18} />
-                    <span>Logout</span>
+                    <LogOut size={20} />
+                    <span className="font-medium">Logout</span>
                   </button>
                 </div>
               </>
@@ -162,17 +165,17 @@ export const Navbar: React.FC<NavbarProps> = ({ className = '' }) => {
               <>
                 <a
                   href="/login"
-                  className="flex items-center space-x-2 px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 transition block"
+                  className="flex items-center space-x-3 px-4 py-3 rounded-md text-gray-700 hover:bg-gray-100 transition block"
                 >
-                  <LogIn size={18} />
-                  <span>Login</span>
+                  <LogIn size={20} />
+                  <span className="font-medium">Login</span>
                 </a>
                 <a
                   href="/signup"
-                  className="flex items-center space-x-2 px-3 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition block"
+                  className="flex items-center space-x-3 px-4 py-3 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 transition block shadow-md"
                 >
-                  <UserPlus size={18} />
-                  <span>Sign Up</span>
+                  <UserPlus size={20} />
+                  <span className="font-medium">Sign Up</span>
                 </a>
               </>
             )}

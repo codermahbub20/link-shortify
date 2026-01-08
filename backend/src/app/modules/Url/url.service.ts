@@ -37,15 +37,22 @@ const getMyUrlsFromDB = async (userId: string) => {
   return Url.find({ user: userId }).sort({ createdAt: -1 });
 };
 
-// 🔁 Redirect + analytics
+//Redirect + analytics
 const redirectAndTrack = async (shortCode: string) => {
-  const url = await Url.findOne({ shortCode });
+  const url = await Url.findOneAndUpdate(
+    { shortCode },
+    { $inc: { clickCount: 1 } },
+    { new: true }
+  );
+
   if (!url) return null;
 
-  url.clickCount += 1;
-  await url.save();
+  let destination = url.originalUrl;
+  if (!/^https?:\/\//i.test(destination)) {
+    destination = 'http://' + destination;
+  }
 
-  return url.originalUrl;
+  return destination;
 };
 
 // Delete URL

@@ -10,6 +10,6 @@ router.get('/my-urls', auth(), UrlControllers.getMyUrls);
 router.delete('/:id', auth(), UrlControllers.deleteUrl);
 
 // public
-router.get('/:shortCode', UrlControllers.redirectShortUrl);
+// router.get('/:shortCode', UrlControllers.redirectShortUrl);
 
 export const UrlRoutes = router;
